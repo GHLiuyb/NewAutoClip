@@ -617,4 +617,85 @@ export const systemApi = {
   }
 }
 
+// 批量处理API
+export const batchApi = {
+  // 添加视频到队列
+  addToQueue: (videos: Array<{
+    video_path: string
+    project_name?: string
+    srt_path?: string
+    priority?: number
+  }>): Promise<{ success: boolean; message: string; items: any[] }> => {
+    return api.post('/batch/queue', { videos })
+  },
+
+  // 获取队列统计
+  getQueueStats: (): Promise<{
+    total: number
+    pending: number
+    processing: number
+    completed: number
+    failed: number
+    current: any | null
+  }> => {
+    return api.get('/batch/queue/stats')
+  },
+
+  // 获取队列列表
+  getQueueList: (status?: string, limit?: number): Promise<any[]> => {
+    return api.get('/batch/queue', { params: { status, limit } })
+  },
+
+  // 从队列移除
+  removeFromQueue: (itemId: number): Promise<{ success: boolean; message: string }> => {
+    return api.delete(`/batch/queue/${itemId}`)
+  },
+
+  // 清空队列
+  clearQueue: (status?: string): Promise<{ success: boolean; message: string }> => {
+    return api.delete('/batch/queue', { params: { status } })
+  },
+
+  // 启动批量处理
+  startBatchProcessing: (): Promise<{ success: boolean; message: string }> => {
+    return api.post('/batch/start')
+  },
+
+  // 停止批量处理
+  stopBatchProcessing: (): Promise<{ success: boolean; message: string }> => {
+    return api.post('/batch/stop')
+  },
+
+  // 获取批量处理状态
+  getBatchStatus: (): Promise<{
+    running: boolean
+    total_pending: number
+    total_processing: number
+  }> => {
+    return api.get('/batch/status')
+  },
+
+  // 上传并添加到队列
+  uploadAndAdd: (files: File[], srtFiles?: File[]): Promise<{
+    success: boolean
+    message: string
+    items: any[]
+  }> => {
+    const formData = new FormData()
+    files.forEach(file => {
+      formData.append('files', file)
+    })
+    if (srtFiles) {
+      srtFiles.forEach(file => {
+        formData.append('srt_files', file)
+      })
+    }
+    return api.post('/batch/upload-and-add', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  }
+}
+
 export default api

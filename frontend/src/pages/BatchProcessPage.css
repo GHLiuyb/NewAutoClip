@@ -1,0 +1,94 @@
+.batch-page {
+  padding: 24px;
+  background: #141414;
+  min-height: 100vh;
+}
+
+.batch-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.batch-title {
+  color: #fff !important;
+  margin-bottom: 24px !important;
+}
+
+.batch-title .anticon {
+  margin-right: 8px;
+}
+
+.stats-row {
+  margin-bottom: 16px;
+}
+
+.stats-row .ant-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.batch-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.batch-card .ant-card-body {
+  padding: 20px;
+}
+
+.batch-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.batch-table .ant-table {
+  background: transparent;
+}
+
+.batch-table .ant-table-thead > tr > th {
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.batch-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.batch-table .ant-table-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.batch-table .ant-empty-description {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.upload-area {
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: #1890ff;
+  background: rgba(24, 144, 255, 0.05);
+}
+
+.upload-area .anticon {
+  font-size: 48px;
+  color: rgba(255, 255, 255, 0.25);
+  margin-bottom: 16px;
+}
+
+.upload-area p {
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+}

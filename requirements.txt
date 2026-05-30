@@ -2,8 +2,6 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 alembic
-celery[redis]
-redis
 pydantic
 pydantic-settings
 python-multipart

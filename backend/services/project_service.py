@@ -356,15 +356,7 @@ class ProjectService(BaseService[Project, ProjectCreate, ProjectUpdate, ProjectR
             project_id: 项目ID
         """
         try:
-            # 清理Redis中的进度数据
-            try:
-                from ..services.simple_progress import clear_progress
-                clear_progress(project_id)
-                logger.info(f"清理项目 {project_id} 的Redis进度数据")
-            except Exception as e:
-                logger.warning(f"清理Redis进度数据失败: {e}")
-            
-            # 清理增强进度服务中的缓存
+            # 清理增强进度服务中的缓存（如果还存在）
             try:
                 from ..services.enhanced_progress_service import progress_service
                 if project_id in progress_service.progress_cache:

@@ -39,8 +39,8 @@ class LoggingSettings(BaseModel):
 
 class Settings(BaseSettings):
     """应用设置"""
-    # 允许 .env + 忽略未声明的键，避免"Extra inputs are not permitted"
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
+    # 只从环境变量读取，不依赖 .env 文件
+    model_config = SettingsConfigDict(extra='ignore')
 
     environment: str = Field(default='development', validation_alias=AliasChoices('ENVIRONMENT'))
     debug: bool = Field(default=True, validation_alias=AliasChoices('DEBUG'))

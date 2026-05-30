@@ -8,6 +8,7 @@ from .clip import Clip
 from .collection import Collection
 from .task import Task, TaskStatus, TaskType
 from .bilibili import BilibiliAccount, UploadRecord
+from .batch_queue import BatchQueue, BatchQueueStats, QueueStatus
 
 __all__ = [
     "Base",
@@ -19,5 +20,8 @@ __all__ = [
     "TaskStatus",
     "TaskType",
     "BilibiliAccount",
-    "UploadRecord"
+    "UploadRecord",
+    "BatchQueue",
+    "BatchQueueStats",
+    "QueueStatus"
 ]

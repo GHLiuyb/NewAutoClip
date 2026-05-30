@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-AutoClip 一键启动器 v2.1
-自动启动所有服务并保存详细日志
+AutoClip 一键启动器 v2.2
+自动启动所有服务并保存详细日志 - 已移除 Redis 依赖
 """
 
 import os
@@ -46,24 +46,9 @@ class AutoClipLauncher:
     
     def print_banner(self):
         print("\n" + "=" * 60)
-        print("  AutoClip 一键启动器 v2.1")
-        print("  自动启动服务 + 详细日志记录")
+        print("  AutoClip 一键启动器 v2.2")
+        print("  自动启动服务 + 详细日志记录 (无 Redis)")
         print("=" * 60 + "\n")
-    
-    def check_redis(self):
-        self.log("检查 Redis...")
-        try:
-            import redis
-            r = redis.Redis.from_url('redis://localhost:6379/0', socket_connect_timeout=1)
-            r.ping()
-            self.log("✓ Redis 连接成功")
-            return True
-        except ImportError:
-            self.log("⚠ redis 模块未安装，将使用 SQLite 进度存储")
-            return False
-        except Exception as e:
-            self.log(f"⚠ Redis 未运行 ({e})，将使用 SQLite 进度存储")
-            return False
     
     def _find_npm_path(self):
         """查找npm的绝对路径"""
@@ -86,8 +71,38 @@ class AutoClipLauncher:
         
         return None
     
+    def _kill_port_process(self, port):
+        """杀死占用指定端口的进程"""
+        try:
+            result = subprocess.run(
+                ["netstat", "-ano"],
+                capture_output=True,
+                text=True
+            )
+            lines = result.stdout.split('\n')
+            for line in lines:
+                if f':{port}' in line and 'LISTENING' in line:
+                    parts = line.split()
+                    if parts:
+                        pid = parts[-1]
+                        try:
+                            subprocess.run(
+                                ["taskkill", "/F", "/PID", pid],
+                                capture_output=True
+                            )
+                            self.log(f"已终止占用端口 {port} 的进程 (PID: {pid})")
+                            return True
+                        except:
+                            pass
+        except:
+            pass
+        return False
+    
     def start_backend(self):
         """启动后端服务"""
+        self.log("检查端口占用...")
+        self._kill_port_process(8000)
+        self._kill_port_process(3000)
         self.log("正在启动后端服务...")
         
         try:
@@ -261,8 +276,6 @@ class AutoClipLauncher:
             signal.signal(signal.SIGINT, self.signal_handler)
             signal.signal(signal.SIGTERM, self.signal_handler)
             
-            self.check_redis()
-            
             backend_ok = self.start_backend()
             frontend_ok = self.start_frontend()
             processor_ok = self.start_event_processor()
@@ -280,6 +293,13 @@ class AutoClipLauncher:
             
             self.log("所有服务启动完成！")
             self.log("访问地址: http://localhost:3000")
+            
+            # 打开浏览器
+            self.log("正在打开浏览器...")
+            import webbrowser
+            time.sleep(2)  # 给前端服务多一点启动时间
+            webbrowser.open('http://localhost:3000')
+            self.log("浏览器已打开")
             
             # 保持脚本运行并持续记录日志
             try:

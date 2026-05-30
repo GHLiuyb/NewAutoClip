@@ -4,12 +4,14 @@
 """
 import logging
 import os
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.api.v1 import api_router
 from backend.api.v1.health import router as health_router
+from backend.api.v1.batch import router as batch_router
 from backend.core.database import engine
 from backend.models.base import Base
 from backend.core.config import get_logging_config, get_api_key
@@ -69,22 +71,56 @@ def create_app(mode: str = "web") -> FastAPI:
         
         # 导入所有模型以确保表被创建
         from backend.models.bilibili import BilibiliAccount, UploadRecord
+        from backend.models.batch_queue import BatchQueue, BatchQueueStats
         Base.metadata.create_all(bind=engine)
         logger.info("数据库表创建完成")
         
-        # 加载 API 密钥到环境变量
-        api_key = get_api_key()
-        if api_key:
-            os.environ["DASHSCOPE_API_KEY"] = api_key
-            logger.info("API 密钥已加载到环境变量")
-        else:
-            logger.warning("未找到 API 密钥配置")
+        # 加载 API 密钥配置
+        try:
+            from pathlib import Path
+            import json
+            
+            # 读取 data/settings.json
+            settings_file = Path(__file__).parent.parent / "data" / "settings.json"
+            if settings_file.exists():
+                with open(settings_file, 'r', encoding='utf-8') as f:
+                    settings_data = json.load(f)
+                
+                # 检查是否有任何一个提供商的密钥
+                has_key = False
+                for provider, key_name in [
+                    ("siliconflow", "siliconflow_api_key"),
+                    ("openai", "openai_api_key"),
+                    ("dashscope", "dashscope_api_key"),
+                    ("gemini", "gemini_api_key"),
+                    ("sensenova", "sensenova_api_key")
+                ]:
+                    key = settings_data.get(key_name, "")
+                    if key and len(key) > 5:
+                        has_key = True
+                        # 设置环境变量
+                        env_var = f"{provider.upper()}_API_KEY"
+                        os.environ[env_var] = key
+                        logger.info(f"{provider} API 密钥已加载到环境变量")
+                
+                if not has_key:
+                    logger.info("未找到任何 API 密钥配置，请在前端设置中配置")
+            else:
+                logger.info("settings.json 不存在，请在前端设置中配置 API 密钥")
+                
+        except Exception as e:
+            logger.warning(f"加载 API 配置时出错: {e}")
+        
+        # 启动批量处理器
+        from backend.services.batch_processor import batch_processor
+        await batch_processor.start()
+        logger.info("批量处理器已启动")
         
         # 根据模式进行不同的初始化
         if mode == "desktop":
             logger.info("桌面模式：使用本地队列和 SQLite")
         else:
-            logger.info("Web 模式：使用 Redis/Celery")
+            logger.info("Web 模式：使用简化处理")
         
         logger.info("WebSocket 网关服务已禁用，使用新的简化进度系统")
     
@@ -92,11 +128,18 @@ def create_app(mode: str = "web") -> FastAPI:
     @app.on_event("shutdown")
     async def shutdown_event():
         logger.info("正在关闭 AutoClip API 服务...")
+        
+        # 停止批量处理器
+        from backend.services.batch_processor import batch_processor
+        await batch_processor.stop()
+        logger.info("批量处理器已停止")
+        
         logger.info("WebSocket 网关服务已禁用")
     
     # 注册路由
     app.include_router(health_router, prefix="/api/health", tags=["health"])
     app.include_router(api_router, prefix="/api/v1")
+    app.include_router(batch_router, prefix="/api/v1/batch", tags=["批量处理"])
     
     # 添加 video-categories 路由（统一到 api_router 中）
     @app.get("/api/v1/video-categories")

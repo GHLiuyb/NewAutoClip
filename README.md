@@ -4,6 +4,20 @@
 ![Python](https://img.shields.io/badge/Python-3.8+-green?style=flat&logo=python)
 ![React](https://img.shields.io/badge/React-18+-blue?style=flat&logo=react)
 
+## 🤖 推荐模型
+
+**强烈推荐使用硅基流动的 Qwen/Qwen2.5-14B-Instruct 模型**！
+
+👉 [点此注册送 16 元体验金（约可处理 1000 分钟视频）](https://cloud.siliconflow.cn/i/ygitVHwX)
+
+**优势**:
+- ✅ 支持长上下文，理解能力强
+- ✅ 处理速度快，性价比高
+- ✅ 16 元体验金可处理约 1000 分钟视频
+- ✅ 无需科学上网
+
+---
+
 ## 项目起源
 
 **NewAutoClip** 是基于 [AutoClip](https://github.com/zhouxiaoka/autoclip) 项目二次开发而来的视频智能切片系统。
@@ -27,10 +41,25 @@
 
 - Python 3.8+
 - Node.js 16+
-- Redis 6.0+ (用于异步任务队列)
 - FFmpeg (视频处理)
 
 ### 安装步骤
+
+#### 方式一：一键启动（推荐）
+
+```bash
+# 克隆项目
+git clone https://github.com/YOUR_USERNAME/NewAutoClip.git
+cd NewAutoClip
+
+# Windows 用户双击运行
+一键启动.bat
+
+# 或手动运行
+python 一键启动.py
+```
+
+#### 方式二：手动启动
 
 ```bash
 # 克隆项目
@@ -44,9 +73,6 @@ pip install -r requirements.txt
 cd frontend
 npm install
 cd ..
-
-# 启动Redis (需要预先安装)
-redis-server
 
 # 启动后端
 python -m uvicorn backend.main:app --reload --port 8000
@@ -99,8 +125,7 @@ NewAutoClip/
 
 ### 后端
 - FastAPI - Web框架
-- Celery - 异步任务队列
-- Redis - 消息代理
+- SQLite - 数据存储和任务队列
 - Pydantic - 数据验证
 
 ### 前端
@@ -119,7 +144,9 @@ NewAutoClip/
 1. **多AI模型支持**: 支持更多AI服务提供商，可灵活切换
 2. **配置优化**: 修复了多个配置持久化问题
 3. **桌面模式增强**: 改进了桌面应用的用户体验
-4. **Bug修复**: 修复了多个已知问题
+4. **批量处理**: 支持批量处理多个视频，自动顺序执行
+5. **移除Redis依赖**: 使用SQLite实现本地任务队列，无需额外安装
+6. **Bug修复**: 修复了多个已知问题
 
 ## License
 
