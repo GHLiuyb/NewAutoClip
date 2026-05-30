@@ -4,13 +4,21 @@
 ![Python](https://img.shields.io/badge/Python-3.8+-green?style=flat&logo=python)
 ![React](https://img.shields.io/badge/React-18+-blue?style=flat&logo=react)
 
+## 📢 声明与致谢
+
+**NewAutoClip** 是基于原项目 [AutoClip](https://github.com/zhouxiaoka/autoclip) 二次开发的视频智能切片系统。
+
+感谢原作者 **zhouxiaoka** 及所有为原项目做出贡献的开发者们，他们的工作为 NewAutoClip 奠定了坚实的基础。
+
+---
+
 ## 🤖 推荐模型
 
-**强烈推荐使用硅基流动的 Qwen/Qwen2.5-14B-Instruct 模型**！
+**强烈推荐使用硅基流动的 Qwen/Qwen2.5-14B-Instruct 模型！**
 
 👉 [点此注册送 16 元体验金（约可处理 1000 分钟视频）](https://cloud.siliconflow.cn/i/ygitVHwX)
 
-**优势**:
+**优势**：
 - ✅ 支持长上下文，理解能力强
 - ✅ 处理速度快，性价比高
 - ✅ 16 元体验金可处理约 1000 分钟视频
@@ -89,17 +97,17 @@ npm run dev
 
 ```
 NewAutoClip/
-├── backend/              # FastAPI 后端
-│   ├── api/            # API路由
-│   ├── core/           # 核心模块
-│   ├── models/         # 数据模型
-│   ├── services/       # 业务逻辑
-├── frontend/            # React 前端
+├── backend/                 # FastAPI 后端
+│   ├── api/                # API路由
+│   ├── core/               # 核心模块
+│   ├── models/             # 数据模型
+│   ├── services/           # 业务逻辑
+├── frontend/               # React 前端
 │   ├── src/
-│   │   ├── components/  # React组件
-│   │   ├── pages/        # 页面
-│   │   └── services/     # API服务
-└── data/                # 数据目录
+│   │   ├── components/     # React组件
+│   │   ├── pages/          # 页面
+│   │   └── services/       # API服务
+└── data/                   # 数据目录
 ```
 
 ## 技术栈

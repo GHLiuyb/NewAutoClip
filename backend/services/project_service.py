@@ -120,12 +120,20 @@ class ProjectService(BaseService[Project, ProjectCreate, ProjectUpdate, ProjectR
         # Convert to response schemas
         project_responses = []
         for project in items:
+            project_id = str(project.id)
+            
+            # 验证项目目录是否存在，如果不存在则自动清理
+            project_dir = Path(f"data/projects/{project_id}")
+            if not project_dir.exists():
+                logger.warning(f"项目 {project_id} ({project.name}) 的目录不存在，自动清理")
+                self._auto_cleanup_invalid_project(project_id)
+                continue
+            
             # Get actual statistics for each project
             from ..models.clip import Clip
             from ..models.collection import Collection
             from ..models.task import Task
             
-            project_id = str(project.id)
             total_clips = self.db.query(Clip).filter(Clip.project_id == project_id).count()
             total_collections = self.db.query(Collection).filter(Collection.project_id == project_id).count()
             total_tasks = self.db.query(Task).filter(Task.project_id == project_id).count()
@@ -153,6 +161,49 @@ class ProjectService(BaseService[Project, ProjectCreate, ProjectUpdate, ProjectR
             items=project_responses,
             pagination=pagination_response
         )
+    
+    def _auto_cleanup_invalid_project(self, project_id: str):
+        """
+        自动清理无效项目（当发现项目目录不存在时调用）
+        
+        Args:
+            project_id: 项目ID
+        """
+        try:
+            logger.info(f"开始自动清理无效项目 {project_id}")
+            
+            # 删除相关任务
+            task_count = self.db.query(Task).filter(Task.project_id == project_id).count()
+            if task_count > 0:
+                self.db.query(Task).filter(Task.project_id == project_id).delete()
+                logger.info(f"删除项目 {project_id} 的 {task_count} 个任务")
+            
+            # 删除相关切片
+            clip_count = self.db.query(Clip).filter(Clip.project_id == project_id).count()
+            if clip_count > 0:
+                self.db.query(Clip).filter(Clip.project_id == project_id).delete()
+                logger.info(f"删除项目 {project_id} 的 {clip_count} 个切片")
+            
+            # 删除相关合集
+            collection_count = self.db.query(Collection).filter(Collection.project_id == project_id).count()
+            if collection_count > 0:
+                self.db.query(Collection).filter(Collection.project_id == project_id).delete()
+                logger.info(f"删除项目 {project_id} 的 {collection_count} 个合集")
+            
+            # 删除项目记录
+            self.db.query(Project).filter(Project.id == project_id).delete()
+            logger.info(f"删除项目 {project_id} 记录")
+            
+            # 清理进度数据
+            self._cleanup_project_progress(project_id)
+            
+            # 提交事务
+            self.db.commit()
+            logger.info(f"无效项目 {project_id} 自动清理完成")
+            
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"自动清理无效项目 {project_id} 失败: {str(e)}")
     
     def start_project_processing(self, project_id: str) -> bool:
         """Start processing a project."""
