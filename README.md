@@ -4,6 +4,10 @@
 ![Python](https://img.shields.io/badge/Python-3.8+-green?style=flat&logo=python)
 ![React](https://img.shields.io/badge/React-18+-blue?style=flat&logo=react)
 
+**语言**: [English](README-EN.md) | [中文](README.md)
+
+---
+
 ## 📢 声明与致谢
 
 **NewAutoClip** 是基于原项目 [AutoClip](https://github.com/zhouxiaoka/autoclip) 二次开发的视频智能切片系统。
